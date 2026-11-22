@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kettle Forge Studios</title>
+<meta name="description" content="Kettle Forge Studios: games, apps and tools, forged in the kettle. Makers of Kernelcade, a 2.5D retro game player for Android.">
+<meta name="theme-color" content="#14090A">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root {
+    --bg: #14090A; --surface: #241113; --line: #3a1c1f;
+    --red: #DC141E; --gold: #FFC933; --text: #FFF7EC; --dim: #C99B9B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 56px 22px 40px; }
+  .brand { text-align: center; margin-bottom: 48px; }
+  .kettle { width: 76px; height: 76px; display: block; margin: 0 auto 18px; }
+  h1 {
+    margin: 0; font-size: clamp(30px, 7vw, 46px); letter-spacing: .04em;
+    text-transform: uppercase; line-height: 1.1;
+  }
+  h1 span { color: var(--gold); }
+  .tag { color: var(--dim); margin: 10px 0 0; font-size: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px; margin: 0 0 18px;
+  }
+  .app { display: flex; gap: 20px; align-items: center; }
+  .app img { width: 88px; height: 88px; border-radius: 20px; flex: none; }
+  h2 { margin: 0 0 6px; font-size: 22px; }
+  .pill {
+    display: inline-block; font-size: 13px; font-weight: 600;
+    color: var(--bg); background: var(--gold);
+    padding: 2px 10px; border-radius: 99px; margin-bottom: 8px;
+  }
+  p { margin: 0; color: var(--text); }
+  .muted { color: var(--dim); }
+  .grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .grid .card { margin: 0; }
+  h3 { margin: 0 0 6px; font-size: 18px; color: var(--gold); }
+  a { color: var(--gold); }
+  footer {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line);
+    color: var(--dim); font-size: 14px; text-align: center;
+  }
+  footer p { color: var(--dim); margin: 4px 0; }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .app { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="brand">
+    <!-- Original mark: a popcorn kettle with pixel kernels popping out -->
+    <svg class="kettle" viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="22" y="4"  width="6" height="6" fill="#FFF7EC"/>
+      <rect x="34" y="2"  width="6" height="6" fill="#FFC933"/>
+      <rect x="44" y="10" width="6" height="6" fill="#FFF7EC"/>
+      <rect x="12" y="12" width="6" height="6" fill="#FFC933"/>
+      <rect x="28" y="13" width="6" height="6" fill="#FFF7EC"/>
+      <path d="M8 26h48l-4 26a6 6 0 0 1-6 5H18a6 6 0 0 1-6-5z" fill="#DC141E"/>
+      <rect x="6" y="22" width="52" height="6" rx="3" fill="#FFC933"/>
+      <rect x="2" y="32" width="6" height="12" rx="3" fill="#DC141E"/>
+      <rect x="56" y="32" width="6" height="12" rx="3" fill="#DC141E"/>
+      <rect x="18" y="36" width="28" height="4" rx="2" fill="#FFC933" opacity=".55"/>
+    </svg>
+    <h1>Kettle Forge <span>Studios</span></h1>
+    <p class="tag">Games, apps and tools, forged in the kettle.</p>
+  </header>
+
+  <section class="card app">
+    <img src="kernelcade-icon.png" alt="Kernelcade app icon" width="88" height="88">
+    <div>
+      <span class="pill">In development</span>
+      <h2>Kernelcade</h2>
+      <p>A 2.5D retro game player for Android. Kernelcade pops classic 2D game
+        worlds apart into layers of depth, with tilt and parallax you can feel.
+        It plays your own game files. Coming to Google Play.</p>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h3>Kettle Forge Labs</h3>
+      <p class="muted">Experiments and free, open software, from tiny
+        microcontroller systems to whatever pops next.</p>
+    </section>
+    <section class="card">
+      <h3>Kettle Forge Garage</h3>
+      <p class="muted">The workbench: tools we build to make our games and
+        apps, some of which we'll share.</p>
+    </section>
+  </div>
+
+  <footer>
+    <p><a href="https://github.com/kettleforgestudios">github.com/kettleforgestudios</a></p>
+    <p>&copy; 2026 Kettle Forge Studios</p>
+    <p>Kernelcade is not affiliated with or endorsed by any video game console maker.</p>
+  </footer>
+</main>
+</body>
+</html>
