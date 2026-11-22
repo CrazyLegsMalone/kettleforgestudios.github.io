@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Code Generator — Kettle Forge Garage</title>
+<meta name="description" content="Free, ad-free, 100% offline QR code generator for URLs, text, and Wi-Fi networks by Kettle Forge Studios.">
+<meta name="theme-color" content="#14090A">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  :root {
+    --bg: #14090A; --surface: #241113; --line: #3a1c1f;
+    --red: #DC141E; --gold: #FFC933; --text: #FFF7EC; --dim: #C99B9B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px 56px; }
+  header { text-align: center; margin-bottom: 24px; }
+  h1 { margin: 0; font-size: clamp(26px, 6vw, 34px); text-transform: uppercase; letter-spacing: .04em; }
+  h1 span { color: var(--gold); }
+  .sub { color: var(--dim); margin: 6px 0 0; font-size: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab {
+    flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--dim); font: 600 14px/1 inherit; cursor: pointer;
+  }
+  .tab.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+  label { display: block; font-size: 13px; color: var(--dim); margin: 10px 0 4px; }
+  input, textarea, select {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    font: 15px/1.4 inherit;
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .color-box { flex: 1; min-width: 110px; }
+  .color-box input[type="color"] { height: 42px; padding: 4px; cursor: pointer; }
+  button.primary {
+    flex: 1; background: var(--gold); color: var(--bg); border: 0;
+    border-radius: 10px; padding: 12px 16px; font: 700 15px/1 inherit; cursor: pointer;
+  }
+  button.ghost {
+    flex: 1; background: #30171a; color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 16px; font: 600 14px/1 inherit; cursor: pointer;
+  }
+  button.ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .preview {
+    margin-top: 20px; display: flex; flex-direction: column; align-items: center;
+    padding: 20px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
+  }
+  canvas { border-radius: 10px; image-rendering: pixelated; max-width: 100%; height: auto; }
+  .err { color: #ff7b7b; font-size: 14px; margin-top: 10px; text-align: center; }
+  footer { margin-top: 28px; text-align: center; color: var(--dim); font-size: 13px; }
+  footer a { color: var(--gold); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>QR <span>Generator</span></h1>
+    <p class="sub">Kettle Forge Garage · 100% offline in your browser · Zero ads or tracking</p>
+  </header>
+
+  <section class="card">
+    <div class="tabs">
+      <button class="tab active" id="tabText">URL / Text</button>
+      <button class="tab" id="tabWifi">Wi-Fi Network</button>
+    </div>
+
+    <div id="paneText">
+      <label for="txt">Website URL or text</label>
+      <textarea id="txt" placeholder="https://kettleforgestudios.com">https://kettleforgestudios.com</textarea>
+    </div>
+
+    <div id="paneWifi" style="display:none;">
+      <label for="ssid">Wi-Fi Network Name (SSID)</label>
+      <input id="ssid" placeholder="MyHomeWiFi">
+      <label for="wpass">Password</label>
+      <input id="wpass" placeholder="Leave blank for open network">
+      <label for="wsec">Security</label>
+      <select id="wsec">
+        <option value="WPA" selected>WPA / WPA2 / WPA3</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">None (Open)</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="color-box">
+        <label for="fg">Foreground</label>
+        <input id="fg" type="color" value="#000000">
+      </div>
+      <div class="color-box">
+        <label for="bg">Background</label>
+        <input id="bg" type="color" value="#ffffff">
+      </div>
+      <div class="color-box">
+        <label for="sz">PNG Size</label>
+        <select id="sz">
+          <option value="256">256 px</option>
+          <option value="512" selected>512 px</option>
+          <option value="1024">1024 px</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="preview">
+      <canvas id="cv"></canvas>
+      <p class="err" id="err"></p>
+    </div>
+
+    <div class="row">
+      <button class="primary" id="dlPng">Download PNG</button>
+      <button class="ghost" id="dlSvg">Download SVG</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>Everything is generated locally on your device — Wi-Fi passwords and text never leave your browser.</p>
+    <p><a href="/">&larr; Back to Kettle Forge Studios</a> · <a href="/privacy">Privacy</a></p>
+  </footer>
+</main>
+
+<script>
+// Self-contained pure-JS Byte-mode QR encoder (Versions 1..10, ECC-L)
+const QR = (() => {
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; EXP[i + 255] = x; LOG[x] = i; x = (x << 1) ^ (x & 128 ? 0x11d : 0); }
+  const mul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+  const VER = [null,[19,7,1],[34,10,1],[55,15,1],[80,20,1],[108,26,1],[136,18,2],[156,20,2],[194,24,2],[232,30,2],[274,18,4]];
+  const ALIGN = [null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+  function rsGen(deg) {
+    let p = [1];
+    for (let i = 0; i < deg; i++) {
+      const q = new Array(p.length + 1).fill(0);
+      for (let j = 0; j < p.length; j++) { q[j] ^= p[j]; q[j + 1] ^= mul(p[j], EXP[i]); }
+      p = q;
+    }
+    return p;
+  }
+  function rsRem(data, ecLen) {
+    const gen = rsGen(ecLen), rem = new Uint8Array(ecLen);
+    for (const b of data) {
+      const f = b ^ rem[0]; rem.copyWithin(0, 1); rem[ecLen - 1] = 0;
+      for (let i = 0; i < ecLen; i++) rem[i] ^= mul(gen[i + 1], f);
+    }
+    return rem;
+  }
+  function encode(text) {
+    const bytes = new TextEncoder().encode(text);
+    let v = 1;
+    while (v <= 10 && bytes.length + (v < 10 ? 2 : 3) > VER[v][0]) v++;
+    if (v > 10) return null;
+    const [dataCap, ecPer, blocks] = VER[v];
+    const bits = [];
+    const push = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    push(4, 4); push(bytes.length, v < 10 ? 8 : 16);
+    for (const b of bytes) push(b, 8);
+    push(0, Math.min(4, dataCap * 8 - bits.length));
+    while (bits.length % 8) bits.push(0);
+    const cw = [];
+    for (let i = 0; i < bits.length; i += 8) {
+      let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; cw.push(b);
+    }
+    for (let p = 0; cw.length < dataCap; p++) cw.push(p & 1 ? 0x11 : 0xEC);
+    const shortLen = Math.floor(dataCap / blocks), longBlocks = dataCap % blocks, shortBlocks = blocks - longBlocks;
+    const dBlocks = [], eBlocks = [];
+    for (let i = 0, off = 0; i < blocks; i++) {
+      const len = shortLen + (i >= shortBlocks ? 1 : 0);
+      const sl = cw.slice(off, off + len); off += len;
+      dBlocks.push(sl); eBlocks.push(rsRem(sl, ecPer));
+    }
+    const stream = [];
+    for (let i = 0; i < shortLen + (longBlocks ? 1 : 0); i++)
+      for (const b of dBlocks) if (i < b.length) stream.push(b[i]);
+    for (let i = 0; i < ecPer; i++)
+      for (const e of eBlocks) stream.push(e[i]);
+    const n = 17 + 4 * v;
+    const m = Array.from({length: n}, () => new Int8Array(n));
+    const fn = Array.from({length: n}, () => new Uint8Array(n));
+    const setFn = (r, c, d) => { if (r >= 0 && r < n && c >= 0 && c < n) { m[r][c] = d ? 2 : 1; fn[r][c] = 1; } };
+    const finder = (r, c) => {
+      for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) {
+        const d = Math.max(Math.abs(dr - 3), Math.abs(dc - 3));
+        setFn(r + dr, c + dc, d !== 2 && d !== 4);
+      }
+    };
+    finder(0, 0); finder(0, n - 7); finder(n - 7, 0);
+    for (let i = 8; i < n - 8; i++) { setFn(6, i, (i & 1) === 0); setFn(i, 6, (i & 1) === 0); }
+    for (const r of ALIGN[v]) for (const c of ALIGN[v]) {
+      if ((r === 6 && c === 6) || (r === 6 && c === n - 7) || (r === n - 7 && c === 6)) continue;
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++)
+        setFn(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
+    }
+    setFn(n - 8, 8, true);
+    for (let i = 0; i <= 8; i++) { if (i !== 6) { fn[8][i] = 1; fn[i][8] = 1; } }
+    for (let i = n - 8; i < n; i++) { fn[8][i] = 1; fn[i][8] = 1; }
+    if (v >= 7) {
+      let rem = v; for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >> 11) * 0x1F25);
+      const vb = (v << 12) | rem;
+      for (let i = 0; i < 18; i++) {
+        const d = ((vb >> i) & 1) !== 0, a = n - 11 + (i % 3), b = Math.floor(i / 3);
+        setFn(a, b, d); setFn(b, a, d);
+      }
+    }
+    let bi = 0;
+    for (let right = n - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let vert = 0; vert < n; vert++) {
+        const r = ((right + 1) & 2) === 0 ? (n - 1 - vert) : vert;
+        for (let j = 0; j < 2; j++) {
+          const c = right - j;
+          if (fn[r][c]) continue;
+          const bit = bi < stream.length * 8 ? ((stream[bi >> 3] >> (7 - (bi & 7))) & 1) : 0;
+          bi++;
+          m[r][c] = (bit ^ (((r + c) & 1) === 0 ? 1 : 0)) ? 2 : 1;
+        }
+      }
+    }
+    const fmt = 0x77C4;
+    for (let i = 0; i < 15; i++) {
+      const d = ((fmt >> i) & 1) !== 0;
+      const r1 = i < 6 ? i : (i < 8 ? i + 1 : n - 15 + i), c1 = 8;
+      const r2 = 8, c2 = i < 8 ? n - 1 - i : (i === 8 ? 7 : 14 - i);
+      m[r1][c1] = d ? 2 : 1; m[r2][c2] = d ? 2 : 1;
+    }
+    return { n, m };
+  }
+  return { encode };
+})();
+
+let mode = "text", lastQr = null;
+const $ = id => document.getElementById(id);
+const escWifi = s => s.replace(/([\\;,:"])/g, "\\$1");
+
+function payload() {
+  if (mode === "wifi") {
+    const s = $("ssid").value.trim();
+    if (!s) return "";
+    const t = $("wsec").value, p = $("wpass").value;
+    return `WIFI:T:${t};S:${escWifi(s)};P:${t === "nopass" ? "" : escWifi(p)};;`;
+  }
+  return $("txt").value.trim();
+}
+
+function render() {
+  const data = payload(), cv = $("cv"), err = $("err");
+  err.textContent = "";
+  if (!data) { lastQr = null; cv.width = cv.height = 0; return; }
+  const qr = QR.encode(data);
+  if (!qr) { lastQr = null; cv.width = cv.height = 0; err.textContent = "Too long for QR code (max ~270 characters)."; return; }
+  lastQr = qr;
+  const px = parseInt($("sz").value, 10) || 512;
+  const cells = qr.n + 8;
+  const scale = Math.max(4, Math.floor(px / cells));
+  cv.width = cv.height = cells * scale;
+  cv.style.width = "240px";
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = $("bg").value; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = $("fg").value;
+  for (let r = 0; r < qr.n; r++) for (let c = 0; c < qr.n; c++)
+    if (qr.m[r][c] === 2) ctx.fillRect((c + 4) * scale, (r + 4) * scale, scale, scale);
+}
+
+$("tabText").onclick = () => { mode = "text"; $("tabText").classList.add("active"); $("tabWifi").classList.remove("active"); $("paneText").style.display = ""; $("paneWifi").style.display = "none"; render(); };
+$("tabWifi").onclick = () => { mode = "wifi"; $("tabWifi").classList.add("active"); $("tabText").classList.remove("active"); $("paneWifi").style.display = ""; $("paneText").style.display = "none"; render(); };
+["txt", "ssid", "wpass", "wsec", "fg", "bg", "sz"].forEach(id => $(id).addEventListener("input", render));
+
+$("dlPng").onclick = () => {
+  if (!lastQr) return;
+  const a = document.createElement("a");
+  a.download = mode === "wifi" ? "wifi-qr.png" : "qr-code.png";
+  a.href = $("cv").toDataURL("image/png"); a.click();
+};
+$("dlSvg").onclick = () => {
+  if (!lastQr) return;
+  const { n, m } = lastQr, cells = n + 8, fg = $("fg").value, bg = $("bg").value;
+  let rects = `<rect width="${cells}" height="${cells}" fill="${bg}"/>`;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+    if (m[r][c] === 2) rects += `<rect x="${c + 4}" y="${r + 4}" width="1" height="1" fill="${fg}"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${cells} ${cells}" shape-rendering="crispEdges">${rects}</svg>`;
+  const a = document.createElement("a");
+  a.download = mode === "wifi" ? "wifi-qr.svg" : "qr-code.svg";
+  a.href = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); a.click();
+};
+render();
+</script>
+</body>
+</html>
